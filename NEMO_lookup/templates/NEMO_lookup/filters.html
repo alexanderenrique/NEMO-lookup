@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Lookup{% endblock %}
+{% block content %}
+    <h1>{{ title }}</h1>
+    <p><a href="{% url 'lookup' %}">&larr; Lookup</a></p>
+
+    <form method="post" class="form-horizontal" style="max-width: 640px">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group{% if field.errors %} has-error{% endif %}">
+                <label class="control-label col-sm-3" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="col-sm-9">
+                    {{ field }}
+                    {% if field.help_text %}
+                        <span class="help-block">{{ field.help_text }}</span>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <span class="help-block">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+                <button type="submit" class="btn btn-primary">{{ download_label|default:"Download Excel" }}</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}

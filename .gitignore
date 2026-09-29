@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.db
+.venv/
+venv/
+.DS_Store
+.cursor/
+scripts/.seed_cache/

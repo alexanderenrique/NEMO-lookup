@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Lookup{% endblock %}
+{% block content %}
+    <h1>{{ title }}</h1>
+    {% if description %}
+        <p class="help-block">{{ description }}</p>
+    {% endif %}
+    <p><a href="{% url 'lookup' %}">&larr; Lookup</a></p>
+
+    <form method="post" class="form-horizontal" style="max-width: 720px" id="question-form">
+        {% csrf_token %}
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+        {% for field in form.visible_fields %}
+            <div class="form-group{% if field.errors %} has-error{% endif %}">
+                <label class="control-label col-sm-3" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="col-sm-9">
+                    {{ field }}
+                    {% if field.help_text %}
+                        <span class="help-block">{{ field.help_text }}</span>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <span class="help-block">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+                <button type="submit" name="action" value="answer" class="btn btn-primary">Answer</button>
+                {% if download_ready %}
+                    <button type="submit" name="action" value="download" class="btn btn-default">Download Excel</button>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+
+    {% if answer %}
+        <div class="alert alert-info" style="max-width: 900px; margin-top: 1em">
+            <strong>{{ answer }}</strong>
+        </div>
+    {% endif %}
+
+    {% for table in tables %}
+        <h3>{{ table.title }}</h3>
+        {% if table.rows %}
+            <div class="table-responsive" style="max-width: 100%; overflow-x: auto">
+                <table class="table table-bordered table-striped table-condensed">
+                    <thead>
+                        <tr>
+                            {% for header in table.headers %}
+                                <th>{{ header }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in table.rows %}
+                            <tr>
+                                {% for cell in row %}
+                                    <td>{{ cell }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="help-block">No rows.</p>
+        {% endif %}
+    {% endfor %}
+
+    {% if needs_user_search or needs_tool_search %}
+        <script type="text/javascript">
+            $(function () {
+                {% if needs_user_search %}
+                function on_user_select(jquery_event, search_selection) {
+                    $("#id_user").val(search_selection.id);
+                    $("#user_search").typeahead("val", search_selection.name);
+                }
+                $("#user_search").autocomplete("users", on_user_select, "{% url 'lookup_search_users' %}", true);
+                {% endif %}
+                {% if needs_tool_search %}
+                function on_tool_select(jquery_event, search_selection) {
+                    $("#id_tool").val(search_selection.id);
+                    $("#tool_search").typeahead("val", search_selection.name);
+                }
+                $("#tool_search").autocomplete("tools", on_tool_select, "{% url 'lookup_search_tools' %}", true);
+                {% endif %}
+            });
+        </script>
+    {% endif %}
+{% endblock %}

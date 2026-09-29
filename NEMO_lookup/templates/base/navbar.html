@@ -1,0 +1,6 @@
+{% extends 'base/navbar_base.html' %}
+{% load custom_tags_and_filters %}
+{% block navbar_admin %}
+    {{ block.super }}
+    {% navigation_url 'lookup' 'Lookup' perms.lookup.use_lookup %}
+{% endblock %}
